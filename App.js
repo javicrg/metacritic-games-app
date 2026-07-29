@@ -6,6 +6,8 @@ import { getLatestGames } from "./lib/metacritic";
 import { AnimatedGameCard } from "./components/GameCard";
 import { Logo } from "./components/Logo";
 
+import "./global.css";
+
 export default function App() {
   const [games, setGames] = useState([]);
 
