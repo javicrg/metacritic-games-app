@@ -1,33 +1,47 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, Image, Button, Pressable } from "react-native";
-import { useState } from "react";
-
-const icon = require("./assets/icon.png");
+import { StyleSheet, View, ActivityIndicator, FlatList } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useState, useEffect } from "react";
+import { getLatestGames } from "./lib/metacritic";
+import { AnimatedGameCard } from "./components/GameCard";
+import { Logo } from "./components/Logo";
 
 export default function App() {
-  const [timesPressed, setTimesPressed] = useState(0);
+  const [games, setGames] = useState([]);
+
+  useEffect(() => {
+    getLatestGames().then((games) => {
+      setGames(games);
+    });
+  }, []);
 
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
-
-      <Pressable
-        onPress={() => {
-          setTimesPressed((current) => current + 1);
-        }}
-        style={({ pressed }) => [
-          {
-            backgroundColor: pressed ? "rgb(210, 230, 255)" : "white",
-          },
-          styles.wrapperCustom,
-        ]}
-      >
-        {({ pressed }) => (
-          <Text style={{ fontWeight: pressed ? "bold" : "normal" }}>
-            {pressed ? "Pressed!" : "Press Me"}
-          </Text>
+      <SafeAreaView style={{ margin: 12 }}>
+        <View style={{ alignItems: "center", marginBottom: 20 }}>
+          <Logo />
+        </View>
+        {games.length === 0 ? (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <ActivityIndicator size="large" color="#fff" />
+          </View>
+        ) : (
+          <FlatList
+            data={games}
+            keyExtractor={(item) => item.slug}
+            renderItem={({ item, index }) => (
+              <AnimatedGameCard game={item} index={index} />
+            )}
+          ></FlatList>
         )}
-      </Pressable>
+      </SafeAreaView>
     </View>
   );
 }
@@ -38,5 +52,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: 12,
   },
 });
